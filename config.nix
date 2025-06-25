@@ -2,7 +2,7 @@
 
 {
   imports = [
-    ./hardware-configuration.nix
+    ../hardware-configuration.nix
   ];
 
   # Bootloader
@@ -15,7 +15,6 @@
 
   # Time and locale
   time.timeZone = "America/New_York";
-
   i18n.defaultLocale = "en_US.UTF-8";
   i18n.extraLocaleSettings = {
     LC_ADDRESS = "en_US.UTF-8";
@@ -29,30 +28,78 @@
     LC_TIME = "en_US.UTF-8";
   };
 
-  # GNOME Desktop Environment
+  # X11 + GNOME
   services.xserver.enable = true;
-  services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
+  services.xserver.displayManager.gdm.enable = true;
+  services.xserver.displayManager.autoLogin.enable = true;
+  services.xserver.displayManager.autoLogin.user = "collier";
 
-  # Enable Gnome Tiling Extension
-  environment.gnome.excludePackages = with pkgs.gnome; [ gnome-terminal ];
+  # Enable Gnome Tiling extension via gnome-extension override
+  environment.gnome.excludePackages = with pkgs.gnome; [ gnome-tour ];
   services.gnome.core-utilities.enable = true;
+
   environment.systemPackages = with pkgs; [
-    gnomeExtensions.pop-shell
+    # Terminal & system utilities
+    alacritty
+    fish
+    xclip
+    neovim
+    wget
+    curl
+    file
+    unzip
+    gnutar
+    ripgrep
+    fd
+    xorg.xrandr
+    arandr
+
+    # Development
+    git
+    gnumake
+    pkg-config
+    rustc
+    cargo
+    go
+    gcc
+    gdb
+    clang
+    cmake
+
+    # GNOME Tweaks and Extensions
     gnome.gnome-tweaks
+    gnomeExtensions.pop-shell
+
+    # Browsers and GUI apps
+    firefox
+    librewolf
+
+    # Network
+    networkmanagerapplet
+    blueman
+    blueberry
+
+    # Audio
+    pavucontrol
   ];
 
-  # Sound and media
+  # Pipewire audio
+  services.pulseaudio.enable = false;
+  security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    # jack.enable = true;
   };
-  services.pulseaudio.enable = false;
-  security.rtkit.enable = true;
 
-  # User
+  # D-Bus and Polkit (GNOME needs these)
+  services.dbus.enable = true;
+  security.polkit.enable = true;
+
+  # User setup
   users.users.collier = {
     isNormalUser = true;
     description = "John Collier Cobb III";
@@ -60,7 +107,14 @@
     shell = pkgs.fish;
   };
 
+  # Enable fish shell
   programs.fish.enable = true;
+
+  # Enable Flakes
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+  # Allow unfree packages
+  nixpkgs.config.allowUnfree = true;
 
   # Fonts
   fonts = {
@@ -70,32 +124,6 @@
     ];
   };
 
-  # System packages
-  environment.systemPackages = with pkgs; [
-    fish
-    git
-    neovim
-    xclip
-    gnome.gnome-tweaks
-    gnomeExtensions.pop-shell
-    librewolf
-    unzip
-    ripgrep
-    fd
-    wget
-    rustc cargo
-    go
-    gcc gdb
-    clang cmake
-    pkg-config
-  ];
-
-  # Flakes support
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
-
-  # State version
+  # Set system version
   system.stateVersion = "25.05";
 }
