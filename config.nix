@@ -1,9 +1,7 @@
 { config, pkgs, ... }:
 
 {
-  imports = [
-    ../hardware-configuration.nix
-  ];
+  imports = [ ../hardware-configuration.nix ];
 
   # Bootloader
   boot.loader.systemd-boot.enable = true;
@@ -13,7 +11,7 @@
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
 
-  # Time and locale
+  # Timezone & locale
   time.timeZone = "America/New_York";
   i18n.defaultLocale = "en_US.UTF-8";
   i18n.extraLocaleSettings = {
@@ -28,63 +26,39 @@
     LC_TIME = "en_US.UTF-8";
   };
 
-  # X11 + GNOME
+  # X11 + GNOME setup
   services.xserver.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.displayManager.autoLogin.enable = true;
   services.xserver.displayManager.autoLogin.user = "collier";
 
-  # Enable Gnome Tiling extension via gnome-extension override
-  environment.gnome.excludePackages = with pkgs.gnome; [ gnome-tour ];
+  # Core GNOME utilities
   services.gnome.core-utilities.enable = true;
 
+  # Combined package declarations
   environment.systemPackages = with pkgs; [
-    # Terminal & system utilities
-    alacritty
-    fish
-    xclip
-    neovim
-    wget
-    curl
-    file
-    unzip
-    gnutar
-    ripgrep
-    fd
-    xorg.xrandr
-    arandr
+    # Terminal & utilities
+    alacritty fish xclip neovim wget curl file unzip gnutar ripgrep fd xorg.xrandr arandr
 
     # Development
-    git
-    gnumake
-    pkg-config
-    rustc
-    cargo
-    go
-    gcc
-    gdb
-    clang
-    cmake
+    git gnumake pkg-config rustc cargo go gcc gdb clang cmake
 
-    # GNOME Tweaks and Extensions
+    # GNOME Tweaks & Tiling
     gnome.gnome-tweaks
     gnomeExtensions.pop-shell
 
-    # Browsers and GUI apps
-    firefox
-    librewolf
+    # Browsers
+    firefox librewolf
 
     # Network
-    networkmanagerapplet
-    blueman
-    blueberry
+    networkmanagerapplet blueman blueberry
 
     # Audio
     pavucontrol
   ];
 
-  # Pipewire audio
+  # PipeWire audio
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -92,10 +66,9 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    # jack.enable = true;
   };
 
-  # D-Bus and Polkit (GNOME needs these)
+  # D-Bus & Polkit
   services.dbus.enable = true;
   security.polkit.enable = true;
 
@@ -107,14 +80,7 @@
     shell = pkgs.fish;
   };
 
-  # Enable fish shell
   programs.fish.enable = true;
-
-  # Enable Flakes
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
 
   # Fonts
   fonts = {
@@ -124,6 +90,9 @@
     ];
   };
 
-  # Set system version
+  # Experimental features
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nixpkgs.config.allowUnfree = true;
+
   system.stateVersion = "25.05";
 }
