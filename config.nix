@@ -7,11 +7,11 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # Hostname and networking
+  # Networking
   networking.hostName = "nixos";
   networking.networkmanager.enable = true;
 
-  # Timezone & locale
+  # Locale & Timezone
   time.timeZone = "America/New_York";
   i18n.defaultLocale = "en_US.UTF-8";
   i18n.extraLocaleSettings = {
@@ -26,14 +26,20 @@
     LC_TIME = "en_US.UTF-8";
   };
 
-  # X11 + GNOME setup
+  # X11 + GNOME
   services.xserver.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
   services.xserver.displayManager.gdm.enable = true;
-  services.xserver.displayManager.autoLogin.enable = true;
-  services.xserver.displayManager.autoLogin.user = "collier";
+  services.displayManager.autoLogin = {
+    enable = true;
+    user = "collier";
+  };
+  services.xserver.xkb = {
+    layout = "us";
+    options = "caps:swapescape";
+  };
 
-  # PipeWire audio
+  # Audio (PipeWire)
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -47,7 +53,7 @@
   services.dbus.enable = true;
   security.polkit.enable = true;
 
-  # User setup
+  # User account
   users.users.collier = {
     isNormalUser = true;
     description = "John Collier Cobb III";
@@ -55,42 +61,43 @@
     shell = pkgs.fish;
   };
 
-  # Enable Fish
+  # Fish shell
   programs.fish.enable = true;
+
+  # Fonts
+  fonts = {
+    fontDir.enable = true;
+    packages = with pkgs; [
+      nerd-fonts.blex-mono
+    ];
+  };
 
   # System packages
   environment.systemPackages = with pkgs; [
-    # Terminals and tools
+    # Terminal & tools
     alacritty fish xclip neovim wget curl file unzip gnutar ripgrep fd xorg.xrandr arandr
 
     # Development
     git gnumake pkg-config rustc cargo go gcc gdb clang cmake
 
-    # GNOME Tiling + Tweaks
+    # GNOME extension + tweaks
     gnome-tweaks
     gnomeExtensions.pop-shell
 
     # Browsers
     firefox librewolf
 
-    # Networking + Bluetooth
+    # Network & Bluetooth
     networkmanagerapplet blueman blueberry
 
     # Audio control
     pavucontrol
   ];
 
-  # Fonts
-  fonts = {
-    fontDir.enable = true;
-    packages = with pkgs; [
-      nerdfonts
-    ];
-  };
-
-  # Experimental features and unfree packages
+  # Experimental features
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree = true;
 
+  # Ensure state consistency
   system.stateVersion = "25.05";
 }
