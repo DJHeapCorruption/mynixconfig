@@ -33,31 +33,6 @@
   services.xserver.displayManager.autoLogin.enable = true;
   services.xserver.displayManager.autoLogin.user = "collier";
 
-  # Core GNOME utilities
-  services.gnome.core-utilities.enable = true;
-
-  # Combined package declarations
-  environment.systemPackages = with pkgs; [
-    # Terminal & utilities
-    alacritty fish xclip neovim wget curl file unzip gnutar ripgrep fd xorg.xrandr arandr
-
-    # Development
-    git gnumake pkg-config rustc cargo go gcc gdb clang cmake
-
-    # GNOME Tweaks & Tiling
-    gnome.gnome-tweaks
-    gnomeExtensions.pop-shell
-
-    # Browsers
-    firefox librewolf
-
-    # Network
-    networkmanagerapplet blueman blueberry
-
-    # Audio
-    pavucontrol
-  ];
-
   # PipeWire audio
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
@@ -80,7 +55,30 @@
     shell = pkgs.fish;
   };
 
+  # Enable Fish
   programs.fish.enable = true;
+
+  # System packages
+  environment.systemPackages = with pkgs; [
+    # Terminals and tools
+    alacritty fish xclip neovim wget curl file unzip gnutar ripgrep fd xorg.xrandr arandr
+
+    # Development
+    git gnumake pkg-config rustc cargo go gcc gdb clang cmake
+
+    # GNOME Tiling + Tweaks
+    gnome-tweaks
+    gnomeExtensions.pop-shell
+
+    # Browsers
+    firefox librewolf
+
+    # Networking + Bluetooth
+    networkmanagerapplet blueman blueberry
+
+    # Audio control
+    pavucontrol
+  ];
 
   # Fonts
   fonts = {
@@ -90,7 +88,7 @@
     ];
   };
 
-  # Experimental features
+  # Experimental features and unfree packages
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree = true;
 
